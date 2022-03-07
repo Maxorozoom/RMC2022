@@ -1,0 +1,128 @@
+#include <phidget22.h>
+#include <stdio.h>
+
+float ifl, ifr, ibl, ibr, Rot, DI_steps;
+int n_step,degree,distance;
+
+void initialize() {
+	PhidgetBLDCMotorHandle fl;//Initializes what each motor is as a BLDC motor
+	PhidgetBLDCMotorHandle bl;
+	PhidgetBLDCMotorHandle fr;
+	PhidgetBLDCMotorHandle br;
+
+	PhidgetBLDCMotor_create(&fl, &bl, &fr, &br);//Creates the BLDC motor channels for teh specified motors
+
+	Phidget_setHubPort((PhidgetHandle)fl, 1);//Sets hub ports for  the motors
+	Phidget_setHubPort((PhidgetHandle)bl, 2);
+	Phidget_setHubPort((PhidgetHandle)fr, 3);
+	Phidget_setHubPort((PhidgetHandle)br, 5); 
+
+	Phidget_openWaitForAttachment((PhidgetHandle)fl, 3000);//Waits for the connection of the motors of in the hub ports if none 
+	Phidget_openWaitForAttachment((PhidgetHandle)bl, 3000);//are activated will throw error and exit the program.
+	Phidget_openWaitForAttachment((PhidgetHandle)fr, 3000);
+	Phidget_openWaitForAttachment((PhidgetHandle)br, 3000);
+
+	return(fl, bl, fr, br);
+
+
+
+}
+
+void Instructions() {
+	
+	char answer;
+
+	printf("Please enter number depending on the direction you want to go\n1:forward\n2:backward\n3:right\n4:Left");
+
+	scanf(&answer);
+
+	switch (answer)
+	{
+		case '1'||'2':
+			printf("Please enter distance in mm");
+			scanf(&distance);
+			break;
+		case '3':
+			printf("please enter Degree");
+			scanf(&degree);
+		case '4':
+			printf("please enter Degree");
+			scanf(&degree);
+		default:
+			printf("Invalid Response");
+
+		return(distance, degree);
+
+
+	}
+}
+
+void Conversions(answer,distance) {
+	n_step = 1150;
+	switch (answer)
+	{
+		case '1':
+			ifl = .75;
+			ifr = .75;
+			ibl = -.75;
+			ibr = -.75;
+			Rot = distance * 349.26;
+			DI_steps = Rot * n_step;
+			break;
+		case '2':
+			ifl = -.75;
+			ifr = -.75;
+			ibl = .75;
+			ibr = .75;
+			Rot = distance * 349.26;
+			DI_steps = Rot * n_step;
+			break;
+		case '3':
+			ifl = .75;
+			ifr = .75;
+			ibl = .75;
+			ibr = .75;
+			Rot = distance * 349.26;
+			DI_steps = Rot * n_step;
+			break;
+		case '4':
+			ifl = -.75;
+			ifr = -.75;
+			ibl = -.75;
+			ibr = -.75;
+			Rot = distance * 349.26;
+			DI_steps = Rot * n_step;
+			break;
+
+		return(ifl, ibr, ifl, ibl);
+
+
+
+		
+	}
+}
+
+void Drive(ibr, ibl, ifl, ifr,fl,fr,br,bl) {
+	PhidgetBLDCMotor_setTargetVelocity(fl, ifl);
+	PhidgetBLDCMotor_setTargetVelocity(bl, ibl);
+	PhidgetBLDCMotor_setTargetVelocity(fr, ifr);
+	PhidgetBLDCMotor_setTargetVelocity(br, ibr);
+}
+
+void Stop(fl, fr, br, bl) {
+	PhidgetBLDCMotor_setTargetVelocity(fl, 0);
+	PhidgetBLDCMotor_setTargetVelocity(bl, 0);
+	PhidgetBLDCMotor_setTargetVelocity(fr, 0);
+	PhidgetBLDCMotor_setTargetVelocity(br, 0);
+}
+
+
+int main() {
+	initialize();
+	Instructions();
+	Conversions();
+	Drive();
+	Stop();
+	
+}
+	
